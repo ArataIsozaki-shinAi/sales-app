@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商談報告 — LiverGate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4ff;
+    --surface: #ffffff;
+    --surface2: #e8eef8;
+    --border: #d0d8f0;
+    --accent: #4f6ef7;
+    --accent2: #22c55e;
+    --accent3: #f7c04f;
+    --text: #1a1d27;
+    --muted: #666b85;
+    --danger: #ef4444;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 5rem;
+  }
+
+  /* ===== ヘッダー ===== */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.875rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-back {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1rem;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .header-title { font-size: 1rem; font-weight: 700; }
+  .header-sub { font-size: 0.72rem; color: var(--muted); margin-left: auto; }
+
+  /* ===== モード切替 ===== */
+  .mode-toggle {
+    display: flex;
+    margin: 1rem;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .mode-btn {
+    flex: 1; padding: 0.5rem;
+    border: none; background: none;
+    border-radius: 8px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.82rem; font-weight: 700;
+    cursor: pointer; color: var(--muted);
+    transition: all 0.15s;
+  }
+  .mode-btn.active {
+    background: var(--surface);
+    color: var(--accent);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  /* ===== フォーム ===== */
+  .form-body { padding: 0 1rem; }
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .field { margin-bottom: 0.875rem; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    color: var(--text);
+  }
+  .field label .required {
+    color: var(--danger);
+    margin-left: 2px;
+  }
+  .field label .hint {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 0.7rem;
+    margin-left: 0.4rem;
+  }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+  .field textarea { min-height: 80px; resize: vertical; }
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666b85' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+  }
+
+  /* チェックボックス */
+  .checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .checkbox-field:has(input:checked) {
+    border-color: var(--accent);
+    background: #eef1ff;
+  }
+  .checkbox-field input[type="checkbox"] {
+    width: 18px; height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+  .checkbox-field span {
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  /* グリッド */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; }
+
+  /* クライアント検索 */
+  .client-search-wrap { position: relative; }
+  .client-search-wrap input { padding-right: 2.5rem; }
+  .client-search-icon {
+    position: absolute; right: 0.75rem; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted); font-size: 0.9rem; pointer-events: none;
+  }
+  .client-suggestions {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 50;
+    display: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  .client-suggestions.show { display: block; }
+  .suggestion-item {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .suggestion-item:last-child { border-bottom: none; }
+  .suggestion-item:hover { background: var(--surface2); }
+  .suggestion-item .suggestion-sub {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  /* 担当者選択 */
+  .member-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+  .member-chip {
+    padding: 0.5rem 0.25rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--bg);
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .member-chip.selected {
+    border-color: var(--accent);
+    background: #eef1ff;
+    color: var(--accent);
+  }
+  .member-chip .chip-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--surface2);
+    margin: 0 auto 0.25rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+  }
+
+  /* ステータスバッジ選択 */
+  .status-grid {
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .status-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--bg);
+    transition: all 0.15s;
+  }
+  .status-option.selected {
+    border-color: var(--accent);
+    background: #eef1ff;
+  }
+  .status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-option .status-label { font-size: 0.85rem; font-weight: 700; }
+  .status-option .status-desc { font-size: 0.7rem; color: var(--muted); margin-left: auto; }
+
+  /* 送信ボタン */
+  .submit-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 0.875rem 1rem;
+    display: flex;
+    gap: 0.625rem;
+  }
+  .btn-submit {
+    flex: 1;
+    padding: 0.875rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-submit:not(:disabled):active { opacity: 0.85; }
+  .btn-cancel {
+    padding: 0.875rem 1.25rem;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* トースト通知 */
+  .toast {
+    position: fixed;
+    top: 1rem; left: 50%; transform: translateX(-50%);
+    background: var(--text);
+    color: #fff;
+    padding: 0.625rem 1.25rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+  .toast.success { background: var(--accent2); }
+  .toast.error { background: var(--danger); }
+
+  /* ローディング */
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: rgba(255,255,255,0.8);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+    display: none;
+  }
+  .loading-overlay.show { display: flex; }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* hidden */
+  .hidden { display: none !important; }
+
+  /* 新規クライアントフォーム */
+  .new-client-section {
+    background: #eef8ff;
+    border: 1.5px dashed #90b8e8;
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .new-client-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #3b7dd8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.875rem;
+  }
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="header">
+  <a class="header-back" href="index.html">←</a>
+  <div class="header-title"><i data-icon="briefcase"></i> 商談報告</div>
+  <div class="header-sub" id="header-user"></div>
+</div>
+
+<!-- モード切替 -->
+<div class="mode-toggle">
+  <button class="mode-btn active" id="mode-btn-existing" onclick="switchMode('existing')">
+    <i data-icon="list"></i> 既存クライアント
+  </button>
+  <button class="mode-btn" id="mode-btn-new" onclick="switchMode('new')">
+    <i data-icon="sparkle"></i> 新規クライアント
+  </button>
+</div>
+
+<div class="form-body">
+
+  <!-- ===== 既存クライアント選択 ===== -->
+  <div class="section" id="section-existing">
+    <div class="section-title"><i data-icon="search"></i> クライアント</div>
+    <div class="field">
+      <label>クライアント名<span class="required">*</span></label>
+      <div class="client-search-wrap">
+        <input type="text" id="client-search" placeholder="社名・店名で検索..." autocomplete="off"
+          oninput="searchClients(this.value)">
+        <span class="client-search-icon"><i data-icon="search"></i></span>
+        <div class="client-suggestions" id="client-suggestions"></div>
+      </div>
+      <input type="hidden" id="selected-client-id">
+      <input type="hidden" id="selected-client-name">
+    </div>
+  </div>
+
+  <!-- ===== 新規クライアント情報 ===== -->
+  <div class="new-client-section hidden" id="section-new-client">
+    <div class="new-client-title"><i data-icon="sparkle"></i> 新規クライアント情報</div>
+    <div class="field">
+      <label>店舗名/会社名<span class="required">*</span><span class="hint">GBP上からコピー</span></label>
+      <input type="text" id="nc-name" placeholder="例：〇〇株式会社">
+    </div>
+    <div class="field">
+      <label>GoogleMAPリンク<span class="required">*</span></label>
+      <input type="text" id="nc-gmb" placeholder="https://maps.google.com/...">
+    </div>
+    <div class="field">
+      <label>GBPがあるか<span class="required">*</span></label>
+      <select id="nc-gbp">
+        <option value="">選択してください</option>
+        <option value="あり">あり</option>
+        <option value="なし">なし</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>デリバリー掲載があるか</label>
+      <select id="nc-delivery">
+        <option value="">選択してください</option>
+        <option value="あり">あり</option>
+        <option value="なし">なし</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>出店名<span class="hint">デリバリー出店名をコピー</span></label>
+      <input type="text" id="nc-delivery-name" placeholder="例：〇〇 出前館店">
+    </div>
+    <div class="field">
+      <label>店舗名/会社名/契約者名<span class="required">*</span><span class="hint">個人の場合はフルネーム</span></label>
+      <input type="text" id="nc-contractor" placeholder="例：山田 太郎">
+    </div>
+  </div>
+
+  <!-- ===== ステータス ===== -->
+  <div class="section">
+    <div class="section-title"><i data-icon="chart"></i> ステータス</div>
+    <div class="field">
+      <div class="status-grid" id="status-grid">
+        <div class="status-option" onclick="selectStatus(this, '商談中')">
+          <span class="status-dot" style="background:#f59e0b"></span>
+          <span class="status-label">商談中</span>
+        </div>
+        <div class="status-option" onclick="selectStatus(this, '申込依頼済み')">
+          <span class="status-dot" style="background:#3b82f6"></span>
+          <span class="status-label">申込依頼済み</span>
+        </div>
+        <div class="status-option" onclick="selectStatus(this, '申込完了')">
+          <span class="status-dot" style="background:#8b5cf6"></span>
+          <span class="status-label">申込完了</span>
+        </div>
+        <div class="status-option" onclick="selectStatus(this, '成約')">
+          <span class="status-dot" style="background:#22c55e"></span>
+          <span class="status-label">成約</span>
+        </div>
+        <div class="status-option" onclick="selectStatus(this, 'NG')">
+          <span class="status-dot" style="background:#ef4444"></span>
+          <span class="status-label">NG</span>
+        </div>
+        <div class="status-option" onclick="selectStatus(this, '保留')">
+          <span class="status-dot" style="background:#6b7280"></span>
+          <span class="status-label">保留</span>
+        </div>
+      </div>
+      <input type="hidden" id="selected-status">
+    </div>
+  </div>
+
+  <!-- ===== 商談詳細 ===== -->
+  <div class="section">
+    <div class="section-title"><i data-icon="note"></i> 商談詳細</div>
+    <div class="grid-2">
+      <div class="field">
+        <label>商談回数<span class="required">*</span></label>
+        <select id="field-meeting-count">
+          <option value="">選択</option>
+          <option value="1">1回目</option>
+          <option value="2">2回目</option>
+          <option value="3">3回目</option>
+          <option value="4">4回目</option>
+          <option value="5">5回目以上</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>属性<span class="required">*</span></label>
+        <select id="field-attribute">
+          <option value="">選択</option>
+          <option value="新規">新規</option>
+          <option value="既存">既存</option>
+          <option value="紹介">紹介</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>提案商材<span class="required">*</span></label>
+      <select id="field-product">
+        <option value="">選択してください</option>
+        <option value="MEO">MEO</option>
+        <option value="SEO">SEO</option>
+        <option value="HP制作">HP制作</option>
+        <option value="広告運用">広告運用</option>
+        <option value="SNS運用">SNS運用</option>
+        <option value="その他">その他</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="checkbox-field">
+        <input type="checkbox" id="field-multi-product">
+        <span>複数商材同時獲得</span>
+      </label>
+    </div>
+    <div class="field">
+      <label>NEXT商談の有無<span class="required">*</span></label>
+      <select id="field-next">
+        <option value="">選択してください</option>
+        <option value="あり">あり</option>
+        <option value="なし">なし</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>商談内容<span class="required">*</span></label>
+      <textarea id="field-content" placeholder="商談の内容を入力してください..."></textarea>
+    </div>
+    <div class="field">
+      <label>経費<span class="hint">任意</span></label>
+      <input type="text" id="field-expense" placeholder="例：交通費 500円">
+    </div>
+  </div>
+
+  <!-- ===== 担当者 ===== -->
+  <div class="section">
+    <div class="section-title"><i data-icon="user"></i> 担当者</div>
+    <div class="field">
+      <label>アポインター<span class="required">*</span></label>
+      <div class="member-grid" id="appointer-grid">
+        <div style="color:var(--muted);font-size:0.8rem;padding:0.5rem">読み込み中...</div>
+      </div>
+      <input type="hidden" id="selected-appointer">
+    </div>
+    <div class="field">
+      <label>クローザー/担当者</label>
+      <div class="member-grid" id="closer-grid">
+        <div style="color:var(--muted);font-size:0.8rem;padding:0.5rem">読み込み中...</div>
+      </div>
+      <input type="hidden" id="selected-closer">
+    </div>
+  </div>
+
+</div><!-- /form-body -->
+
+<!-- 送信バー -->
+<div class="submit-bar">
+  <button class="btn-cancel" onclick="history.back()">戻る</button>
+  <button class="btn-submit" id="btn-submit" onclick="submitForm()">報告を送信</button>
+</div>
+
+<!-- トースト -->
+<div class="toast" id="toast"></div>
+
+<!-- ローディング -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+</div>
+
+<script src="js/icons.js"></script>
+<script>
+// ===== 設定 =====
+const WORKER_URL   = "https://throbbing-lab-83b8.arata-isozaki.workers.dev";
+const APP_TOKEN    = "ES9VbU0ntaer13sncOEjafhgpHe";
+const SALES_TABLE  = "tbl1L0SBGe851UXo";
+const STAFF_TABLE  = "tblTJ1Ghubk653TQ";
+const CLIENT_TABLE = "tblwRQH2baG52xzL";
+
+let allClients = [];
+let allStaff   = [];
+let currentMode = "existing";
+let currentUser = null;
+
+// ===== 初期化 =====
+window.addEventListener("DOMContentLoaded", async () => {
+  // ログイン確認
+  const token = localStorage.getItem("lark_token");
+  const userStr = localStorage.getItem("lark_user");
+  if (!token || !userStr) {
+    location.href = "index.html";
+    return;
+  }
+  currentUser = JSON.parse(userStr);
+  document.getElementById("header-user").textContent = currentUser.name || "";
+
+  // データ読み込み
+  showLoading(true);
+  await Promise.all([loadClients(), loadStaff()]);
+  showLoading(false);
+});
+
+// ===== データ取得 =====
+async function loadClients() {
+  try {
+    const res = await fetch(`${WORKER_URL}?app_token=${APP_TOKEN}&table_id=${CLIENT_TABLE}&page_size=500`);
+    const data = await res.json();
+    allClients = (data.data?.items || []).map(r => ({
+      id: r.record_id,
+      name: getField(r, "店舗名/会社名") || getField(r, "クライアント名") || "",
+      contractor: getField(r, "店舗名/会社名/契約者名") || "",
+    })).filter(c => c.name);
+  } catch(e) { console.error(e); }
+}
+
+async function loadStaff() {
+  try {
+    const res = await fetch(`${WORKER_URL}?app_token=${APP_TOKEN}&table_id=${STAFF_TABLE}&page_size=200`);
+    const data = await res.json();
+    allStaff = (data.data?.items || []).map(r => ({
+      id: r.record_id,
+      name: getField(r, "名前") || getField(r, "スタッフ名") || "",
+      open_id: getField(r, "open_id") || "",
+    })).filter(s => s.name);
+    renderMemberGrids();
+  } catch(e) { console.error(e); }
+}
+
+function getField(record, key) {
+  const val = record.fields?.[key];
+  if (!val) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "number") return val;
+  if (Array.isArray(val)) {
+    if (val[0]?.name) return val[0].name;
+    if (val[0]?.text) return val[0].text;
+    return val[0];
+  }
+  if (val?.value) return Array.isArray(val.value) ? val.value[0] : val.value;
+  if (val?.text) return val.text;
+  return "";
+}
+
+// ===== モード切替 =====
+function switchMode(mode) {
+  currentMode = mode;
+  document.getElementById("mode-btn-existing").classList.toggle("active", mode === "existing");
+  document.getElementById("mode-btn-new").classList.toggle("active", mode === "new");
+  document.getElementById("section-existing").classList.toggle("hidden", mode === "new");
+  document.getElementById("section-new-client").classList.toggle("hidden", mode !== "new");
+  // 入力リセット
+  document.getElementById("client-search").value = "";
+  document.getElementById("selected-client-id").value = "";
+  document.getElementById("selected-client-name").value = "";
+}
+
+// ===== クライアント検索 =====
+function searchClients(query) {
+  const sug = document.getElementById("client-suggestions");
+  document.getElementById("selected-client-id").value = "";
+  document.getElementById("selected-client-name").value = "";
+  if (!query.trim()) { sug.classList.remove("show"); return; }
+  const filtered = allClients.filter(c =>
+    c.name.includes(query) || c.contractor.includes(query)
+  ).slice(0, 8);
+  if (!filtered.length) {
+    sug.innerHTML = `<div class="suggestion-item" style="color:var(--muted)">見つかりません</div>`;
+  } else {
+    sug.innerHTML = filtered.map(c => `
+      <div class="suggestion-item" onclick="selectClient('${c.id}','${c.name.replace(/'/g,"\\'")}')">
+        <div>${c.name}</div>
+        ${c.contractor ? `<div class="suggestion-sub">${c.contractor}</div>` : ""}
+      </div>
+    `).join("");
+  }
+  sug.classList.add("show");
+}
+
+function selectClient(id, name) {
+  document.getElementById("client-search").value = name;
+  document.getElementById("selected-client-id").value = id;
+  document.getElementById("selected-client-name").value = name;
+  document.getElementById("client-suggestions").classList.remove("show");
+}
+
+document.addEventListener("click", e => {
+  if (!e.target.closest(".client-search-wrap")) {
+    document.getElementById("client-suggestions")?.classList.remove("show");
+  }
+});
+
+// ===== ステータス選択 =====
+function selectStatus(el, value) {
+  document.querySelectorAll(".status-option").forEach(s => s.classList.remove("selected"));
+  el.classList.add("selected");
+  document.getElementById("selected-status").value = value;
+}
+
+// ===== メンバーグリッド描画 =====
+function renderMemberGrids() {
+  ["appointer", "closer"].forEach(type => {
+    const grid = document.getElementById(`${type}-grid`);
+    const hiddenId = `selected-${type}`;
+    const isMulti = type === "closer";
+
+    grid.innerHTML = allStaff.map(s => `
+      <div class="member-chip" data-name="${s.name}" 
+        onclick="selectMember(this, '${hiddenId}', ${isMulti})">
+        <div class="chip-avatar">${s.name.charAt(0)}</div>
+        ${s.name}
+      </div>
+    `).join("");
+
+    // closerは自分をデフォルト選択
+    if (type === "closer" && currentUser?.name) {
+      const myChip = [...grid.querySelectorAll(".member-chip")]
+        .find(c => c.dataset.name === currentUser.name);
+      if (myChip) selectMember(myChip, hiddenId, true);
+    }
+  });
+}
+
+function selectMember(el, hiddenId, multi) {
+  if (!multi) {
+    // 単一選択（アポインター）
+    [...el.parentElement.children].forEach(c => c.classList.remove("selected"));
+    el.classList.add("selected");
+    document.getElementById(hiddenId).value = el.dataset.name;
+  } else {
+    // 複数選択可（クローザー）
+    el.classList.toggle("selected");
+    const selected = [...el.parentElement.querySelectorAll(".member-chip.selected")]
+      .map(c => c.dataset.name);
+    document.getElementById(hiddenId).value = selected.join(",");
+  }
+}
+
+// ===== バリデーション =====
+function validate() {
+  if (currentMode === "existing") {
+    if (!document.getElementById("selected-client-id").value) {
+      showToast("クライアントを選択してください", "error"); return false;
+    }
+  } else {
+    if (!document.getElementById("nc-name").value.trim()) {
+      showToast("店舗名/会社名を入力してください", "error"); return false;
+    }
+    if (!document.getElementById("nc-contractor").value.trim()) {
+      showToast("契約者名を入力してください", "error"); return false;
+    }
+  }
+  if (!document.getElementById("selected-status").value) {
+    showToast("ステータスを選択してください", "error"); return false;
+  }
+  if (!document.getElementById("field-meeting-count").value) {
+    showToast("商談回数を選択してください", "error"); return false;
+  }
+  if (!document.getElementById("field-attribute").value) {
+    showToast("属性を選択してください", "error"); return false;
+  }
+  if (!document.getElementById("field-content").value.trim()) {
+    showToast("商談内容を入力してください", "error"); return false;
+  }
+  if (!document.getElementById("selected-appointer").value) {
+    showToast("アポインターを選択してください", "error"); return false;
+  }
+  return true;
+}
+
+// ===== 送信 =====
+async function submitForm() {
+  if (!validate()) return;
+  showLoading(true);
+
+  try {
+    let clientRecordId = document.getElementById("selected-client-id").value;
+    let clientName = document.getElementById("selected-client-name").value;
+
+    // 新規クライアントの場合は先にクライアントマスタに登録
+    if (currentMode === "new") {
+      const ncFields = {
+        "店舗名/会社名": document.getElementById("nc-name").value.trim(),
+        "GoogleMAPリンク": document.getElementById("nc-gmb").value.trim(),
+        "GBPがあるか": document.getElementById("nc-gbp").value,
+        "デリバリー掲載があるか": document.getElementById("nc-delivery").value,
+        "出店名": document.getElementById("nc-delivery-name").value.trim(),
+        "店舗名/会社名/契約者名": document.getElementById("nc-contractor").value.trim(),
+      };
+      // 空フィールド除去
+      Object.keys(ncFields).forEach(k => { if (!ncFields[k]) delete ncFields[k]; });
+
+      const ncRes = await fetch(`${WORKER_URL}?action=create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ app_token: APP_TOKEN, table_id: CLIENT_TABLE, fields: ncFields }),
+      });
+      const ncData = await ncRes.json();
+      if (ncData.code !== 0) throw new Error("クライアント登録失敗: " + ncData.msg);
+      clientRecordId = ncData.data?.record?.record_id;
+      clientName = ncFields["店舗名/会社名"];
+    }
+
+    // 商談報告を売上テーブルに登録
+    const closer = document.getElementById("selected-closer").value;
+    const appointer = document.getElementById("selected-appointer").value;
+
+    const fields = {
+      "ステータス": document.getElementById("selected-status").value,
+      "属性": document.getElementById("field-attribute").value,
+      "商談回数": document.getElementById("field-meeting-count").value,
+      "商談内容": document.getElementById("field-content").value.trim(),
+      "NEXT商談の有無": document.getElementById("field-next").value,
+      "提案商材": document.getElementById("field-product").value,
+      "複数商材同時獲得": document.getElementById("field-multi-product").checked,
+    };
+    if (document.getElementById("field-expense").value)
+      fields["経費"] = document.getElementById("field-expense").value;
+    if (appointer) fields["アポインター"] = [{ name: appointer }];
+    if (closer) fields["クローザー/担当者"] = closer.split(",").map(n => ({ name: n }));
+    if (clientRecordId) fields["クライアント名"] = { link_record_ids: [clientRecordId] };
+
+    // 空フィールド除去
+    Object.keys(fields).forEach(k => {
+      if (fields[k] === "" || fields[k] === null || fields[k] === undefined) delete fields[k];
+    });
+
+    const res = await fetch(`${WORKER_URL}?action=create`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ app_token: APP_TOKEN, table_id: SALES_TABLE, fields }),
+    });
+    const data = await res.json();
+    if (data.code !== 0) throw new Error("報告失敗: " + data.msg);
+
+    showLoading(false);
+    showToast(icon("check","sm") + " 商談報告を登録しました！", "success");
+    setTimeout(() => history.back(), 1500);
+
+  } catch(e) {
+    showLoading(false);
+    showToast(icon("x","sm") + " " + e.message, "error");
+    console.error(e);
+  }
+}
+
+// ===== UI ヘルパー =====
+function showLoading(show) {
+  document.getElementById("loading").classList.toggle("show", show);
+  document.getElementById("btn-submit").disabled = show;
+}
+
+let toastTimer;
+function showToast(msg, type = "") {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = "toast show" + (type ? " " + type : "");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+}
+</script>
+</body>
+</html>
