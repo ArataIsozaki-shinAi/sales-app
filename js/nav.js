@@ -407,6 +407,8 @@
     return null;
   }
 
+  var backTouchTarget = null;
+
   document.addEventListener("touchstart", function(e) {
     if (!isMobile() || isSidebarOpen()) return;
     if (isSwipeContainerActive()) return; // カルーセル内はカルーセル側が処理
@@ -414,6 +416,7 @@
     backPageEl = getActiveDetailPage();
     if (!backPageEl) return;
 
+    backTouchTarget = e.target;
     backTracking = true;
     backLocked   = null;
     backStartX   = e.touches[0].clientX;
@@ -432,6 +435,14 @@
 
     if (!backLocked) {
       if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+
+      // 横スクロール可能な要素内なら戻るジェスチャーを無効化
+      if (Math.abs(dx) >= Math.abs(dy) && isInsideHorizontalScroll(backTouchTarget)) {
+        backTracking = false;
+        backPageEl.style.transition = "";
+        return;
+      }
+
       backLocked = Math.abs(dx) >= Math.abs(dy) ? "h" : "v";
     }
     if (backLocked === "v") return;
